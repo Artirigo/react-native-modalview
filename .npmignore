@@ -2,6 +2,11 @@
 #
 .DS_Store
 
+# Android/IJ
+#
+*.iml
+.idea
+
 # Node.js
 node_modules/
 npm-debug.log
