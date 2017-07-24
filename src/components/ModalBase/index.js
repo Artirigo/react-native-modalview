@@ -227,7 +227,6 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
     const { isOpen } = this.state;
 
     this._modalAnimatedValue = new Animated.Value(isOpen ? 1 : 0);
-    this._modalAnimatedValue.addListener(({ value }) => console.log('val', value));
 
     this._layoutPromise = Promise.all([
       new Promise((resolve: () => void) => {
@@ -528,13 +527,6 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
     const { openContentStyle, closeContentStyle, isOpening } = this.state;
 
     const { isOpen, isClosing } = this.state;
-
-    console.log('render', {
-      isOpen,
-      isOpening,
-      isClosing,
-    });
-
     if (!this._isVisible()) return <View />;
 
     // openContentStyle and closeContentStyle supply the same style for `_modalAnimatedValue=1`
