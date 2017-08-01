@@ -108,6 +108,10 @@ export type Props = {
    */
   overlay?: boolean,
   /**
+   * Used to locate this view in end-to-end tests.
+   */
+  testID?: string,
+  /**
    * when the modal is close and the animation is done
    */
   onLayout?: ?() => void,
@@ -535,7 +539,13 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
     // we choose to have the `closeContentStyle` atteached.
     const contentStyle = isOpening ? openContentStyle : closeContentStyle;
 
-    const { overlay, children, panHandlers, renderBefore: RenderBeforeComponent } = this.props;
+    const {
+      overlay,
+      children,
+      panHandlers,
+      renderBefore: RenderBeforeComponent,
+      testID,
+    } = this.props;
 
     let renderBefore;
 
@@ -546,7 +556,7 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
     }
 
     let content = (
-      <View style={styles.container} pointerEvents="box-none">
+      <View style={styles.container} pointerEvents="box-none" testID={testID}>
         <View style={{ flex: 1 }} onLayout={this._handleContainerLayout}>
           {renderBefore}
           {/* content */}
