@@ -18,6 +18,10 @@ type Props = {
    */
   backdrop?: boolean,
   /**
+   * close modal by clicking on backdrop
+   */
+  backdropClickToClose?: boolean,
+  /**
    * change backdrop color
    */
   backdropColor?: ?string,
@@ -35,6 +39,7 @@ type Props = {
 
 type DefaultProps = {
   backdrop: boolean,
+  backdropClickToClose: boolean,
   backdropColor: ?string,
   backdropAnimationDuration: ?number,
   backdropAnimationEasing: EasingType,
@@ -45,6 +50,7 @@ export default (DecoratedComponent: Class<Component<*, *, *>>) => {
     static defaultProps = {
       ...(DecoratedComponent.defaultProps || {}),
       backdrop: false,
+      backdropClickToClose: false,
       backdropColor: null,
       backdropAnimationDuration: null,
       backdropAnimationEasing: null,
@@ -135,14 +141,14 @@ export default (DecoratedComponent: Class<Component<*, *, *>>) => {
     };
 
     _renderBackdrop = () => {
-      const { backdropColor } = this.props;
+      const { backdropColor, backdropClickToClose } = this.props;
 
       let style: StyleObj = this._backdropStyle;
       if (backdropColor) {
         style = [style, { backgroundColor: backdropColor }];
       }
 
-      return <Backdrop style={style} />;
+      return <Backdrop style={style} onPress={backdropClickToClose ? this.close : null} />;
     };
 
     render() {
