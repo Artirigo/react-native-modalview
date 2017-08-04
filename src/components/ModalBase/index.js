@@ -117,9 +117,13 @@ export type Props = {
    */
   testID?: string,
   /**
-   * when the modal is close and the animation is done
+   * invoked on mount and layout changes
    */
   onLayout?: ?() => void,
+  /**
+   * invoked when content layout changes
+   */
+  onContentLayout?: ?() => void,
   /**
    * when the modal starts closing
    */
@@ -165,6 +169,7 @@ export type DefaultProps = {
   panHandlers: ?Object,
   overlay: boolean,
   onLayout: ?() => void,
+  onContentLayout: ?() => void,
   onClose: ?() => void,
   onClosed: ?() => void,
   onOpen: ?() => void,
@@ -192,6 +197,7 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
     renderBefore: null,
     overlay: false,
     onLayout: null,
+    onContentLayout: null,
     onOpen: null,
     onOpened: null,
     onClose: null,
@@ -341,7 +347,7 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
    * Calculate when should be placed the modal
    */
   _calculateModalPosition(props: Props) {
-    const { positionVertical, positionHorizontal } = props;
+    const { positionVertical, positionHorizontal, onContentLayout } = props;
 
     let result: ?ViewLayout;
 
@@ -378,6 +384,8 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
 
       if (result.y < 0) result.y = 0;
       result.y = Math.floor(result.y);
+
+      if (onContentLayout) onContentLayout(result);
     }
 
     return result;
