@@ -16,11 +16,11 @@ const SWIPE: Object = {
   right: 'right',
 };
 
-const gestureKeyForSwipeDirection: Object = {
-  [SWIPE.left]: 'dx',
-  [SWIPE.right]: 'dx',
-  [SWIPE.up]: 'dy',
-  [SWIPE.down]: 'dy',
+const posKeyForSwipeDirection: Object = {
+  [SWIPE.left]: 'x',
+  [SWIPE.right]: 'x',
+  [SWIPE.up]: 'y',
+  [SWIPE.down]: 'y',
 };
 const dimensionKeyForSwipeDirection: Object = {
   [SWIPE.left]: 'width',
@@ -66,9 +66,11 @@ type DefaultProps = {
   swipeArea: ?number,
 } & ModalDefaultProps;
 
-type ViewSize = {
-  width?: ?number,
-  height?: ?number,
+type ViewLayout = {
+  x?: number,
+  y?: number,
+  width?: number,
+  height?: number,
 };
 
 export default (DecoratedComponent: Class<Component<*, *, *>>) => {
@@ -82,10 +84,12 @@ export default (DecoratedComponent: Class<Component<*, *, *>>) => {
     props: Props; // eslint-disable-line react/sort-comp
 
     _panResponder: ?Object;
-    _containerLayout: ?ViewSize;
+    _contentLayout: ?ViewLayout;
+    _containerLayout: ?ViewLayout;
 
     componentWillMount() {
-      this._createPanResponder();
+      const { swipeToDismiss } = this.props;
+      if (swipeToDismiss) this._createPanResponder();
     }
 
     open = () => {
@@ -122,6 +126,21 @@ export default (DecoratedComponent: Class<Component<*, *, *>>) => {
         }
       };
 
+      const isInSwipeArea = event => {
+        const { animationOut, animation, swipeArea } = this.props;
+
+        const anim: string = animationOut || animation;
+        const swipeDirection: string = swipeDirectionForAnimation[anim];
+        const dimensionKey: string = dimensionKeyForSwipeDirection[swipeDirection];
+        const posKey: string = posKeyForSwipeDirection[swipeDirection];
+        const panSign: number = signForSwipeDirection[swipeDirection];
+        const localPosition: number =
+          event.nativeEvent[`page${posKey.toUpperCase()}`] - this._contentLayout[posKey];
+
+        if (panSign < 0) return localPosition >= this._contentLayout[dimensionKey] - swipeArea;
+        return localPosition <= swipeArea;
+      };
+
       this._panResponder = PanResponder.create({
         onPanResponderGrant: () => {
           // $FlowFixMe
@@ -137,7 +156,7 @@ export default (DecoratedComponent: Class<Component<*, *, *>>) => {
           const containerSize: number =
             (this._containerLayout && this._containerLayout[dimensionKey]) || 0;
 
-          const getGestureValue = view(lensProp(gestureKeyForSwipeDirection[swipeDirection]));
+          const getGestureValue = view(lensProp(`d${posKeyForSwipeDirection[swipeDirection]}`));
 
           const getGestureValueAbs = compose(
             // get absolute value
@@ -166,15 +185,16 @@ export default (DecoratedComponent: Class<Component<*, *, *>>) => {
           // use capture phase to force grabbing the pan-responder
           // when in swipeable-area to prevent underlying buttons
           // to get the pan-responder
-          const { swipeArea } = this.props;
-          return swipeArea && event.nativeEvent.locationY <= swipeArea;
+          const { swipeArea, swipeToDismiss, disabled } = this.props;
+          if (!swipeToDismiss || disabled) return false;
+          if (swipeArea) return isInSwipeArea(event);
+          return false;
         },
 
         onStartShouldSetPanResponder: event => {
           const { swipeToDismiss, disabled, swipeArea } = this.props;
-          return (
-            swipeToDismiss && !disabled && (!swipeArea || event.nativeEvent.locationY <= swipeArea)
-          );
+          if (!swipeToDismiss || disabled) return false;
+          return !swipeArea || isInSwipeArea(event);
         },
         onPanResponderMove: (event, gestureState) => {
           if (shouldPan(gestureState)) {
@@ -190,6 +210,10 @@ export default (DecoratedComponent: Class<Component<*, *, *>>) => {
       const { onLayout } = this.props;
       this._containerLayout = { ...event.nativeEvent.layout };
       if (onLayout) onLayout(event);
+    };
+
+    _handleContentLayout = (layout: ViewLayout) => {
+      this._contentLayout = { ...layout };
     };
 
     _modalRef = null;
@@ -208,6 +232,7 @@ export default (DecoratedComponent: Class<Component<*, *, *>>) => {
           ref={this._captureRef}
           panHandlers={panHandlers}
           onLayout={this._handleLayout}
+          onContentLayout={this._handleContentLayout}
         />
       );
     }
