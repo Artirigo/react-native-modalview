@@ -6,6 +6,9 @@ import { func } from 'prop-types';
 import type { StyleObj } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import * as animations from '../../animations';
+import { easing } from '../../easing';
+import type { EasingType } from '../../easing';
+
 import styles from './styles';
 
 const POSITION = {
@@ -27,6 +30,8 @@ type ContentStyle = {
   openContentStyle: StyleObj,
   closeContentStyle: StyleObj,
 };
+
+type AnimationType = $Keys<typeof animations>;
 
 export type Props = {
   /**
@@ -61,7 +66,7 @@ export type Props = {
   /**
    * convenience prop to set the animation type for open/close
    */
-  animation?: string,
+  animation?: AnimationType,
   /**
    * convenience prop to set the animation duration for open/close/backdrop
    */
@@ -69,11 +74,11 @@ export type Props = {
   /**
    * convenience prop to set the animation easing for open/close/backdrop
    */
-  animationEasing?: (value: number) => number,
+  animationEasing?: EasingType,
   /**
    * animation type for opening the modal
    */
-  animationIn?: string,
+  animationIn?: AnimationType,
   /**
    * animation duration for opening the modal
    */
@@ -81,11 +86,11 @@ export type Props = {
   /**
    * animation easing for opening the modal
    */
-  animationInEasing?: (value: number) => number,
+  animationInEasing?: EasingType,
   /**
    * animation type for closing the modal
    */
-  animationOut?: string,
+  animationOut?: AnimationType,
   /**
    * animation duration for closing the modal
    */
@@ -93,7 +98,7 @@ export type Props = {
   /**
    * animation easing for closing the modal
    */
-  animationOutEasing?: (value: number) => number,
+  animationOutEasing?: EasingType,
   /**
    * use `useNativeDriver` for animations
    */
@@ -147,15 +152,15 @@ export type DefaultProps = {
   renderBefore: ?(ReactClass<any> | React.Element<any>),
   positionVertical: $Keys<typeof POSITION>,
   positionHorizontal: $Keys<typeof POSITION>,
-  animation: string,
+  animation: AnimationType,
   animationDuration: number,
-  animationEasing: (value: number) => number,
-  animationIn: ?string,
+  animationEasing: EasingType,
+  animationIn: ?AnimationType,
   animationInDuration: ?number,
-  animationInEasing: ?(value: number) => number,
-  animationOut: ?string,
+  animationInEasing: ?EasingType,
+  animationOut: ?AnimationType,
   animationOutDuration: ?number,
-  animationOutEasing: ?(value: number) => number,
+  animationOutEasing: ?EasingType,
   animationUseNativeDriver: boolean,
   panHandlers: ?Object,
   overlay: boolean,
@@ -176,7 +181,7 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
     positionHorizontal: POSITION.center,
     animation: 'slideBottom',
     animationDuration: 300,
-    animationEasing: Easing.out(Easing.ease),
+    animationEasing: 'easeOut',
     animationIn: null,
     animationInDuration: null,
     animationInEasing: null,
@@ -410,7 +415,7 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
     this._closeAnimation = Animated.timing(this._modalAnimatedValue, {
       toValue: 0,
       duration: animationOutDuration || animationDuration,
-      easing: animationOutEasing || animationEasing,
+      easing: easing(animationOutEasing) || easing(animationEasing),
       useNativeDriver: animationUseNativeDriver,
     });
     this._closeAnimation.start(this._animateCloseComplete);
@@ -468,7 +473,7 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
     this._openAnimation = Animated.timing(this._modalAnimatedValue, {
       toValue: 1,
       duration: animationInDuration || animationDuration,
-      easing: animationInEasing || animationEasing,
+      easing: easing(animationInEasing) || easing(animationEasing),
       useNativeDriver: animationUseNativeDriver,
     });
     this._openAnimation.start(this._animateOpenComplete);
@@ -557,10 +562,10 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
 
     let content = (
       <View style={styles.container} pointerEvents="box-none" testID={testID}>
-        <View style={{ flex: 1 }} onLayout={this._handleContainerLayout}>
+        <View style={{ flex: 1 }} pointerEvents="box-none" onLayout={this._handleContainerLayout}>
           {renderBefore}
           {/* content */}
-          <View style={styles.contentContainer}>
+          <View style={styles.contentContainer} pointerEvents="box-none">
             <Animated.View
               onLayout={this._handleContentLayout}
               style={contentStyle}
@@ -581,6 +586,7 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
           supportedOrientations={modalSupportedOrientations}
           transparent={true}
           visible={true}
+          pointerEvents="box-none"
         >
           {content}
         </Modal>

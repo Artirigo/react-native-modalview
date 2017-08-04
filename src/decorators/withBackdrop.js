@@ -9,6 +9,8 @@ import type {
   Props as ModalProps,
   DefaultProps as ModalDefaultProps,
 } from '../components/ModalBase';
+import { easing } from '../easing';
+import type { EasingType } from '../easing';
 
 type Props = {
   /**
@@ -28,14 +30,14 @@ type Props = {
    * animation easing for opening and closing the backdrop
    * (defaults to using `animationEasing` )
    */
-  backdropAnimationEasing?: ?(value: number) => number,
+  backdropAnimationEasing?: EasingType,
 } & ModalProps;
 
 type DefaultProps = {
   backdrop: boolean,
   backdropColor: ?string,
   backdropAnimationDuration: ?number,
-  backdropAnimationEasing: ?(value: number) => number,
+  backdropAnimationEasing: EasingType,
 } & ModalDefaultProps;
 
 export default (DecoratedComponent: Class<Component<*, *, *>>) => {
@@ -93,7 +95,7 @@ export default (DecoratedComponent: Class<Component<*, *, *>>) => {
       this._backdropAnimation = Animated.timing(this._backdropAnimatedValue, {
         toValue: 1,
         duration: backdropAnimationDuration || animationDuration,
-        easing: backdropAnimationEasing || animationEasing,
+        easing: easing(backdropAnimationEasing) || easing(animationEasing),
         useNativeDriver: animationUseNativeDriver,
       });
       this._backdropAnimation.start();
@@ -119,7 +121,7 @@ export default (DecoratedComponent: Class<Component<*, *, *>>) => {
       this._backdropAnimation = Animated.timing(this._backdropAnimatedValue, {
         toValue: 0,
         duration: backdropAnimationDuration || animationDuration,
-        easing: backdropAnimationEasing || animationEasing,
+        easing: easing(backdropAnimationEasing) || easing(animationEasing),
         useNativeDriver: animationUseNativeDriver,
       });
       this._backdropAnimation.start();

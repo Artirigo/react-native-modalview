@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native';
-import { mergeStyleSheets } from 'artirigo-library/lib/util/react';
 
 const styles = StyleSheet.create({
   container: {
@@ -14,10 +13,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default mergeStyleSheets(
-  {
-    container: StyleSheet.absoluteFill,
-    contentContainer: StyleSheet.absoluteFill,
-  },
-  styles,
-);
+export default {
+  container: [StyleSheet.absoluteFill, styles.container],
+  contentContainer: [StyleSheet.absoluteFill, styles.contentContainer],
+};
