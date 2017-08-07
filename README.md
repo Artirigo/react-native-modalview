@@ -31,7 +31,7 @@ import React, { Component } from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
 import Modal from 'react-native-modalview'
 
-export default class ModalTester extends Component {
+export default class ModalDemo extends Component {
   state = {
     showModal: false
   }
@@ -96,10 +96,10 @@ const Modal = compose(
 | animationEasing | `string` | 'easeOut' | convenience prop to set the animation easing for open/close/backdrop  |
 | animationIn | `string` | `animation` | animation type for opening the modal  |
 | animationInDuration | `string` | `animationDuration` | animation duration for opening the modal  |
-| animationInEasing | `string | func` | `animationEasing` | animation easing for opening the modal  |
+| animationInEasing | `string`, `func` | `animationEasing` | animation easing for opening the modal  |
 | animationOut | `string` | `animation` | animation type for closing the modal  |
 | animationOutDuration | `string` | `animationDuration` | animation duration for closing the modal  |
-| animationOutEasing | `string | func` | `animationEasing` | animation easing for closing the modal  |
+| animationOutEasing | `string`, `func` | `animationEasing` | animation easing for closing the modal  |
 | animationUseNativeDriver | `bool` | false | use `useNativeDriver` for animations  |
 | overlay | `bool` | false | wrap view in react-native `Modal` to present content above everything else  |
 | testID | `string` | null | Used to locate this view in end-to-end tests.  |
@@ -112,7 +112,7 @@ const Modal = compose(
 | backdropClickToClose | `bool` | false | close modal by clicking on backdrop  |
 | backdropColor | `string` | #00000099 | change backdrop color  |
 | backdropAnimationDuration | `string` | `animationDuration` | animation duration for opening and closing the backdrop  |
-| backdropAnimationEasing | `string | func` | `animationEasing` | animation easing for opening and closing the backdrop  |
+| backdropAnimationEasing | `string`, `func` | `animationEasing` | animation easing for opening and closing the backdrop  |
 
 `withSwipeToDismiss`
 
