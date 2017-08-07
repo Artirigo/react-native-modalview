@@ -145,6 +145,7 @@ type State = {
   isOpen: boolean,
   isOpening: boolean,
   isClosing: boolean,
+  isLayouting: boolean,
   openContentStyle: StyleObj,
   closeContentStyle: StyleObj,
 };
@@ -273,9 +274,11 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
 
     if (!isOpening && isClosedOrClosing) {
       // set flag to show the content already
-      this.setState({ isOpening: true });
+      this.setState({ isLayouting: true });
       // wait for layout-size calculation and start animation afterwards
-      this._layoutPromise.then(this._animateOpenStart);
+      this._layoutPromise
+        .then(() => this.setState({ isLayouting: false }))
+        .then(this._animateOpenStart);
     }
   };
 
@@ -392,8 +395,8 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
   }
 
   _isVisible(): boolean {
-    const { isOpen, isOpening, isClosing } = this.state;
-    return isOpen || isOpening || isClosing;
+    const { isOpen, isOpening, isClosing, isLayouting } = this.state;
+    return isOpen || isOpening || isClosing || isLayouting;
   }
 
   //
@@ -541,9 +544,7 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
   //
 
   render() {
-    const { openContentStyle, closeContentStyle, isOpening } = this.state;
-
-    const { isOpen, isClosing } = this.state;
+    const { openContentStyle, closeContentStyle, isOpening, isLayouting } = this.state;
     if (!this._isVisible()) return <View />;
 
     // openContentStyle and closeContentStyle supply the same style for `_modalAnimatedValue=1`
@@ -568,12 +569,18 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
         : <RenderBeforeComponent />;
     }
 
+    // even with the contentStyle being { opacity:0 } for the initial layout phase
+    // you can see the children for a few ms before starting in open animation
+    // therefor we also hide the wrapping container in the layout phase
+    let contentContainerStyle = styles.contentContainer;
+    if (isLayouting) contentContainerStyle = [contentContainerStyle, { opacity: 0 }];
+
     let content = (
       <View style={styles.container} pointerEvents="box-none" testID={testID}>
         <View style={{ flex: 1 }} pointerEvents="box-none" onLayout={this._handleContainerLayout}>
           {renderBefore}
           {/* content */}
-          <View style={styles.contentContainer} pointerEvents="box-none">
+          <View style={contentContainerStyle} pointerEvents="box-none">
             <Animated.View
               onLayout={this._handleContentLayout}
               style={contentStyle}
