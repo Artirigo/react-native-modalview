@@ -435,12 +435,14 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
   _animateCloseComplete = ({ finished }) => {
     const { onClosed } = this.props;
 
+    //
+    this.setState({ isClosing: false });
+
     // manually set animatedValue to the end-value
     // otherwise the value doesn't get updated correctly
     // when using `swipeToClose` and `useNativeDriver`
     if (finished) this._modalAnimatedValue.setValue(0);
 
-    this.setState({ isClosing: false });
     if (finished && onClosed) onClosed();
   };
 
