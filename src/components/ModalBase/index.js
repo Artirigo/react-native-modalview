@@ -276,9 +276,7 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
       // set flag to show the content already
       this.setState({ isLayouting: true });
       // wait for layout-size calculation and start animation afterwards
-      this._layoutPromise
-        .then(() => this.setState({ isLayouting: false }))
-        .then(this._animateOpenStart);
+      this._layoutPromise.then(() => this._animateOpenStart());
     }
   };
 
@@ -473,7 +471,7 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
     //
     if (!isOpen && onOpen) onOpen();
 
-    if (!reset) this.setState({ isOpening: true });
+    if (!reset) this.setState({ isOpening: true, isLayouting: false });
 
     const {
       animationInDuration,
