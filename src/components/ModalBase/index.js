@@ -431,10 +431,23 @@ export default class ModalBase extends PureComponent<DefaultProps, Props, State>
   };
 
   _animateCloseComplete = ({ finished }) => {
-    const { onClosed } = this.props;
+    const { onClosed, overlay, animationUseNativeDriver } = this.props;
+
+    const newState = { isClosing: false };
+    let setStateCallback;
+
+    // when using `overlay` and `animationUseNativeDriver` the
+    // underlying native view apparently isn't removed immediately
+    // therefore when rendering an empty view after closing
+    // you'll see the modal-content flashing up for some ms
+    // -> we hide the content before removing it
+    if (finished && overlay && animationUseNativeDriver) {
+      newState.isLayouting = true;
+      setStateCallback = () => this.setState({ isLayouting: false });
+    }
 
     //
-    this.setState({ isClosing: false });
+    this.setState(newState, setStateCallback);
 
     // manually set animatedValue to the end-value
     // otherwise the value doesn't get updated correctly
